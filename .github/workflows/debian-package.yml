@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v3
@@ -21,8 +23,6 @@ jobs:
 
     - name: Build Package
       run: |
-        # dpkg-buildpackage looks for the directory name to match package-version
-        # We'll just run it in place.
         dpkg-buildpackage -us -uc -b
 
     - name: Upload Artifact
@@ -30,3 +30,11 @@ jobs:
       with:
         name: stick-debian-package
         path: ../stick_*.deb
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ../stick_*.deb
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
