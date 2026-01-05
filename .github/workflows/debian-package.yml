@@ -1,0 +1,32 @@
+name: Build Debian Package
+
+on:
+  push:
+    branches: [ "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential debhelper devscripts libgtkmm-3.0-dev pkg-config
+
+    - name: Build Package
+      run: |
+        # dpkg-buildpackage looks for the directory name to match package-version
+        # We'll just run it in place.
+        dpkg-buildpackage -us -uc -b
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: stick-debian-package
+        path: ../stick_*.deb

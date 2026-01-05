@@ -1,0 +1,16 @@
+Source: stick
+Section: utils
+Priority: optional
+Maintainer: MaskedSyntax <aftaab@aftaab.xyz>
+Build-Depends: debhelper (>= 11), libgtkmm-3.0-dev, pkg-config
+Standards-Version: 4.1.3
+Homepage: https://github.com/maskedsyntax/stick
+
+Package: stick
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, pkexec, coreutils, util-linux
+Description: Minimal Linux-only GUI for writing ISO images to USB drives
+ Stick is a minimal linux-only GUI for writing ISO images to USB drives.
+ .
+ It provides a simple GTK3 interface to select an ISO file and a target USB
+ drive, and securely flashes the image using system tools like dd and pkexec.
