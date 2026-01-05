@@ -24,17 +24,18 @@ jobs:
     - name: Build Package
       run: |
         dpkg-buildpackage -us -uc -b
+        mv ../stick_*.deb .
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: stick-debian-package
-        path: ../stick_*.deb
+        path: stick_*.deb
 
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: ../stick_*.deb
+        files: stick_*.deb
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
