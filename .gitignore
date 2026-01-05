@@ -39,3 +39,17 @@
 
 # debug information files
 *.dwo
+
+# AI related files
+*.ai
+*.model
+GEMINI.md
+
+# Binaries
+*.bin
+*.iso
+*.img
+stick
+
+# Extras
+ext-dependencies.txt
