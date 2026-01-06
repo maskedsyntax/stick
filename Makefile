@@ -4,7 +4,7 @@ LDFLAGS = $(shell pkg-config --libs gtkmm-3.0)
 
 SRC_DIR = src
 OBJ_DIR = build
-TARGET = stick
+TARGET = $(OBJ_DIR)/stick
 
 SRCS = $(wildcard $(SRC_DIR)/*.cc)
 OBJS = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SRCS))
