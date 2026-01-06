@@ -11,13 +11,11 @@ public:
     virtual ~MainWindow();
 
 protected:
-    // Signal handlers
     void on_iso_file_set();
     void on_drive_changed();
     void on_flash_clicked();
     void on_refresh_clicked();
 
-    // Logic
     void refresh_drives();
     void start_flashing();
     bool on_flash_output(Glib::IOCondition condition);
@@ -27,9 +25,8 @@ protected:
     void show_info(const std::string& message);
     void set_ui_sensitive(bool sensitive);
 
-    // UI Widgets
     Gtk::Box m_vbox;
-    
+
     Gtk::Box m_iso_box;
     Gtk::Label m_iso_label;
     Gtk::FileChooserButton m_iso_chooser;
@@ -39,7 +36,7 @@ protected:
     Gtk::ComboBoxText m_drive_combo;
     Gtk::Button m_refresh_button;
 
-    Gtk::Label m_status_label; // New label for larger progress text
+    Gtk::Label m_status_label;
     Gtk::ProgressBar m_progress_bar;
     Gtk::Button m_flash_button;
 
@@ -53,7 +50,7 @@ protected:
         std::string label;       // display text
     };
     std::vector<DriveInfo> m_drives;
-    
+
     pid_t m_pid;
     int m_fd_out;
     int m_fd_err; // dd status=progress goes to stderr

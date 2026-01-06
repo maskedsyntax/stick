@@ -10,7 +10,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-// Helper to execute shell command and get output (for scanning)
+// execute shell command and get output (for scanning)
 std::string exec(const char* cmd) {
     std::array<char, 128> buffer;
     std::string result;
@@ -24,7 +24,7 @@ std::string exec(const char* cmd) {
     return result;
 }
 
-MainWindow::MainWindow() 
+MainWindow::MainWindow()
     : m_vbox(Gtk::ORIENTATION_VERTICAL, 12),
       m_iso_box(Gtk::ORIENTATION_HORIZONTAL, 10),
       m_drive_box(Gtk::ORIENTATION_HORIZONTAL, 10),
@@ -38,12 +38,9 @@ MainWindow::MainWindow()
     set_default_size(450, 220);
     set_border_width(15);
 
-    // --- UI Setup ---
-
-    // ISO Section
     m_iso_label.set_text("ISO Image:");
     m_iso_label.set_halign(Gtk::ALIGN_START);
-    
+
     m_iso_chooser.set_title("Select ISO File");
     auto filter = Gtk::FileFilter::create();
     filter->set_name("ISO Images");
@@ -56,7 +53,6 @@ MainWindow::MainWindow()
     m_iso_box.pack_start(m_iso_label, Gtk::PACK_SHRINK);
     m_iso_box.pack_start(m_iso_chooser, Gtk::PACK_EXPAND_WIDGET);
 
-    // Drive Section
     m_drive_label.set_text("Target USB:");
     m_drive_label.set_halign(Gtk::ALIGN_START);
 
@@ -71,21 +67,17 @@ MainWindow::MainWindow()
     m_drive_box.pack_start(m_drive_combo, Gtk::PACK_EXPAND_WIDGET);
     m_drive_box.pack_start(m_refresh_button, Gtk::PACK_SHRINK);
 
-    // Status Label
     m_status_label.set_markup("<b>Ready to flash</b>");
     m_status_label.set_halign(Gtk::ALIGN_CENTER);
     m_status_label.set_margin_top(5);
 
-    // Progress Bar
     m_progress_bar.set_show_text(false);
     m_progress_bar.set_fraction(0.0);
 
-    // Flash Button
     m_flash_button.set_label("Flash!");
     m_flash_button.set_sensitive(false);
     m_flash_button.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::on_flash_clicked));
 
-    // Layout
     m_vbox.pack_start(m_iso_box, Gtk::PACK_SHRINK);
     m_vbox.pack_start(m_drive_box, Gtk::PACK_SHRINK);
     m_vbox.pack_start(m_status_label, Gtk::PACK_SHRINK);
@@ -99,7 +91,6 @@ MainWindow::MainWindow()
 }
 MainWindow::~MainWindow() {
     if (m_pid > 0) {
-        // Cleanup if closed while running
         kill(m_pid, SIGTERM);
         int status;
         waitpid(m_pid, &status, WNOHANG);
@@ -114,9 +105,9 @@ void MainWindow::refresh_drives() {
         std::string output = exec("lsblk -P -d -o NAME,SIZE,MODEL,RM,TYPE,TRAN");
         std::istringstream stream(output);
         std::string line;
-        
+
         std::regex re("NAME=\"([^\"]*)\"\\s+SIZE=\"([^\"]*)\"\\s+MODEL=\"([^\"]*)\"\\s+RM=\"([^\"]*)\"\\s+TYPE=\"([^\"]*)\"\\s+TRAN=\"([^\"]*)\"");
-        
+
         while (std::getline(stream, line)) {
             std::smatch match;
             if (std::regex_search(line, match, re)) {
@@ -137,7 +128,7 @@ void MainWindow::refresh_drives() {
                     info.model = model;
                     info.size = size;
                     info.label = info.device_path + " - " + model + " (" + size + ")";
-                    
+
                     m_drives.push_back(info);
                     m_drive_combo.append(info.label);
                 }
@@ -155,7 +146,7 @@ void MainWindow::refresh_drives() {
         m_drive_combo.set_active(0);
         m_drive_combo.set_sensitive(true);
     }
-    
+
     on_drive_changed();
 }
 
@@ -171,11 +162,11 @@ void MainWindow::on_iso_file_set() {
 }
 
 void MainWindow::on_drive_changed() {
-    if (m_flashing_done) return; // Don't reset if we are in done state
+    if (m_flashing_done) return;
 
     bool iso_selected = !m_iso_chooser.get_filename().empty();
     bool drive_selected = !m_drives.empty() && m_drive_combo.get_active_row_number() >= 0;
-    
+
     m_flash_button.set_sensitive(iso_selected && drive_selected);
 }
 
@@ -202,26 +193,26 @@ void MainWindow::start_flashing() {
     argv.push_back("pkexec");
     argv.push_back("bash");
     argv.push_back("-c");
-    // Use conv=fsync for data integrity at the end, status=progress for parsing
+    // conv=fsync for data integrity at the end, status=progress for parsing
     std::string cmd = "dd if=\"" + iso_path + "\" of=\"" + device_path + "\" bs=4M status=progress conv=fsync";
     argv.push_back(cmd);
 
     try {
         Glib::spawn_async_with_pipes(
-            "", 
-            argv, 
+            "",
+            argv,
             Glib::SPAWN_DO_NOT_REAP_CHILD | Glib::SPAWN_SEARCH_PATH,
             Glib::SlotSpawnChildSetup(),
             &m_pid,
-            nullptr, 
-            nullptr, 
-            &m_fd_err 
+            nullptr,
+            nullptr,
+            &m_fd_err
         );
 
         set_ui_sensitive(false);
         m_status_label.set_text("Starting...");
         m_progress_bar.set_fraction(0.0);
-        
+
         m_flash_button.set_label("Flashing...");
 
         m_io_connection = Glib::signal_io().connect(
@@ -246,11 +237,11 @@ void MainWindow::on_flash_clicked() {
                 // Ignore error, maybe already ejected
             }
             show_info("Drive ejected. You can now remove it.");
-            
+
             // Reset state
             m_flashing_done = false;
             m_flash_button.set_label("Flash!");
-            
+
             m_status_label.set_text("Ready to flash");
             m_progress_bar.set_fraction(0.0);
             set_ui_sensitive(true);
@@ -276,10 +267,10 @@ bool MainWindow::on_flash_output(Glib::IOCondition condition) {
         int status = 0;
         waitpid(m_pid, &status, 0);
         on_flash_finished(WEXITSTATUS(status));
-        return false; 
+        return false;
     }
 
-    return true; 
+    return true;
 }
 
 void MainWindow::parse_progress(const std::string& data) {
@@ -292,7 +283,7 @@ void MainWindow::parse_progress(const std::string& data) {
                 double fraction = (double)bytes_written / (double)m_iso_size;
                 if (fraction > 1.0) fraction = 1.0;
                 m_progress_bar.set_fraction(fraction);
-                
+
                 int percent = (int)(fraction * 100);
                 if (percent >= 100) {
                      m_status_label.set_markup("<b>Syncing data... DO NOT REMOVE!</b>");
@@ -315,12 +306,12 @@ void MainWindow::on_flash_finished(int exit_code) {
     if (exit_code == 0) {
         m_progress_bar.set_fraction(1.0);
         m_status_label.set_text("Flashing Completed!");
-        
+
         // Enter Eject Mode
         m_flashing_done = true;
         m_flash_button.set_sensitive(true);
         m_flash_button.set_label("Eject Drive");
-        
+
     } else {
         set_ui_sensitive(true);
         m_status_label.set_text("Flashing Failed");
