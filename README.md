@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/stick.jpeg" alt="Stick Logo" width="150" height="150" />
+  <img src="assets/stick.png" alt="Stick Logo" width="150" height="150" />
 </p>
 
 # Stick
