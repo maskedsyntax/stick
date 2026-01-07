@@ -1,3 +1,9 @@
+stick (1.0.2-1) unstable; urgency=medium
+
+  * Feature: Desktop integration and icon support.
+
+ -- MaskedSyntax <aftaab@aftaab.xyz>  Tue, 06 Jan 2026 13:00:00 +0000
+
 stick (1.0.1-1) unstable; urgency=medium
 
   * Refactor: Codebase standardization and metadata updates.
