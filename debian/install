@@ -1,1 +1,3 @@
 build/stick usr/bin/
+stick.desktop usr/share/applications/
+assets/stick.png usr/share/icons/hicolor/512x512/apps/

@@ -57,10 +57,16 @@ cd stick
 make
 ```
 
-3. Run the application:
+3. Install (optional, for system integration):
 ```bash
-./build/stick
+sudo make install
 ```
+
+4. Run the application:
+```bash
+stick
+```
+(Or run directly from build folder: `./build/stick`)
 
 ## License
 

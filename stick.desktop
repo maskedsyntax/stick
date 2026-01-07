@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Stick
+Comment=Write ISO images to USB drives
+Exec=stick
+Icon=stick
+Terminal=false
+Type=Application
+Categories=Utility;System;GTK;
+Keywords=usb;iso;flash;drive;bootable;
+StartupNotify=true
